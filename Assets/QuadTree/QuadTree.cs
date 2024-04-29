@@ -21,16 +21,19 @@ public class QuadTree<T>
 
     public QuadTree(Vector2 position, float size, int depth)
     {
-        node = new QuadTreeNode<T>(position, size);
+        node = new QuadTreeNode<T>(position, size, depth);
         this.depth = depth;
         //node.Subdivide(depth);
 
     }
 
 
-    public void Insert(Vector2 position, T value)
+    public void Insert(Vector2 position, T data)
     {
-        node.Subdivide(position, value, depth - 1);
+        var leafNode = node.Subdivide(position, data, depth - 1); // Better performance but might not work properly:/ 
+        // var leafNode = node.Subdivide(position, data, depth);  
+
+        leafNode.Data = data;
     }
 
 
@@ -39,7 +42,8 @@ public class QuadTree<T>
         Vector2 position;
         float size;
         QuadTreeNode<T>[] subNodes;
-        T value; //IList<T> value;
+        int depth;
+        T data; //IList<T> value;
 
         public IEnumerable<QuadTreeNode<T>> Nodes 
         { 
@@ -56,23 +60,29 @@ public class QuadTree<T>
             get { return size; }
         }
 
-        public T Value
+        public T Data
         {
-            get { return value; }
+            get { return data; }
+            internal set { this.data = value; }
         }
 
-        public QuadTreeNode(Vector2 position, float size, T value = default(T))
+        public QuadTreeNode(Vector2 position, float size, int depth, T data = default(T))
         {
             this.position = position;
             this.size = size;
-            this.value = value;
+            this.data = data;
+            this.depth = depth;
         }
 
-        public void Subdivide(Vector2 targetPosition, T type, int depth = 0)
+        public QuadTreeNode<T> Subdivide(Vector2 targetPosition, T type, int depth = 0)
         {
+            if(depth == 0)
+            {
+                return this;
+            }
             if(depth > 8)
             {
-                return;
+                return null;
             }
             var subDivIndex = GetIndexOfPosition(targetPosition, position);
             if (subNodes == null)
@@ -101,29 +111,23 @@ public class QuadTree<T>
                     }
 
 
-                    subNodes[i] = new QuadTreeNode<T>(newPos, size * 0.5f);
+                    subNodes[i] = new QuadTreeNode<T>(newPos, size * 0.5f, depth - 1);
                     //if (depth > 0 && subDivIndex == i)
                     //{
-                    //    subNodes[i].Subdivide(targetPosition, value, depth - 1);
+                    //    subNodes[i].Subdivide(targetPosition, data, depth - 1);
 
                     //}
                 }
             }
-
-            if (depth > 0)
-            {
-                subNodes[subDivIndex].Subdivide(targetPosition, value, depth - 1);
-
-            }
- 
             
-
+            
+            return subNodes[subDivIndex].Subdivide(targetPosition, data, depth - 1);
             
         }
 
         public bool IsLeaf()
         {
-            return subNodes == null;
+            return depth == 0;
         }
 
         public IEnumerable<QuadTreeNode<T>> GetLeafNodes()
@@ -134,11 +138,14 @@ public class QuadTree<T>
             }
             else
             {
-                foreach(var node in Nodes)
+                if(Nodes != null)
                 {
-                    foreach(var leaf in node.GetLeafNodes())
+                    foreach (var node in Nodes)
                     {
-                        yield return leaf;
+                        foreach (var leaf in node.GetLeafNodes())
+                        {
+                            yield return leaf;
+                        }
                     }
                 }
             }

@@ -37,18 +37,32 @@ public class QuadTreeComponent : MonoBehaviour
 
     private void DrawNode(QuadTree<bool>.QuadTreeNode<bool> node, int nodeDepth = 0)
     {
-        if(node.IsLeaf())
+        //if(node.IsLeaf())
+        //{
+        //    Gizmos.color = Color.green;
+        //}
+        //else
+        //{
+        //    Gizmos.color = Color.blue;
+        //    foreach (var subnode in node.Nodes)
+        //    {
+        //        if(subnode != null)
+        //        {
+        //            DrawNode(subnode, nodeDepth + 1);
+        //        }
+        //    }
+        //}
+
+        if(!node.IsLeaf())
         {
-            Gizmos.color = Color.green;
-        }
-        else
-        {
-            Gizmos.color = Color.blue;
-            foreach (var subnode in node.Nodes)
+            if(node.Nodes != null)
             {
-                if(subnode != null)
+                foreach (var subnode in node.Nodes)
                 {
-                    DrawNode(subnode, nodeDepth + 1);
+                    if(subnode != null)
+                    {
+                        DrawNode(subnode, nodeDepth + 1);
+                    }
                 }
             }
         }
