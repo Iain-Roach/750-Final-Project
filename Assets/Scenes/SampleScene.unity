@@ -316,6 +316,8 @@ GameObject:
   m_Component:
   - component: {fileID: 561068650}
   - component: {fileID: 561068649}
+  - component: {fileID: 561068651}
+  - component: {fileID: 561068652}
   m_Layer: 0
   m_Name: QuadTree
   m_TagString: Untagged
@@ -336,10 +338,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   size: 5
-  depth: 8
-  points:
-  - {fileID: 1407410621}
-  - {fileID: 1562596767}
+  depth: 7
 --- !u!4 &561068650
 Transform:
   m_ObjectHideFlags: 0
@@ -355,6 +354,35 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &561068651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 561068648}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3526af31021822741b9a7ea40f617e7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  image: {fileID: 2800000, guid: 27191d1ae23d90942be198737770726f, type: 3}
+  quadTree: {fileID: 561068649}
+  threshold: 0.5
+--- !u!114 &561068652
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 561068648}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac5576abe5e62d74b816d9c51e9cab6c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  generate: 0
+  quadTree: {fileID: 561068649}
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
@@ -462,7 +490,7 @@ Transform:
   m_GameObject: {fileID: 1407410620}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.637, y: 0.188, z: 0}
+  m_LocalPosition: {x: 0.025, y: -0.603, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

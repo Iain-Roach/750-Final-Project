@@ -30,7 +30,7 @@ public class QuadTree<T>
 
     public void Insert(Vector2 position, T value)
     {
-        node.Subdivide(position, value, depth);
+        node.Subdivide(position, value, depth - 1);
     }
 
 
@@ -56,10 +56,16 @@ public class QuadTree<T>
             get { return size; }
         }
 
-        public QuadTreeNode(Vector2 position, float size)
+        public T Value
+        {
+            get { return value; }
+        }
+
+        public QuadTreeNode(Vector2 position, float size, T value = default(T))
         {
             this.position = position;
             this.size = size;
+            this.value = value;
         }
 
         public void Subdivide(Vector2 targetPosition, T type, int depth = 0)
@@ -119,6 +125,24 @@ public class QuadTree<T>
         {
             return subNodes == null;
         }
+
+        public IEnumerable<QuadTreeNode<T>> GetLeafNodes()
+        {
+            if (IsLeaf())
+            {
+                yield return this;
+            }
+            else
+            {
+                foreach(var node in Nodes)
+                {
+                    foreach(var leaf in node.GetLeafNodes())
+                    {
+                        yield return leaf;
+                    }
+                }
+            }
+        }
     }
 
     private static int GetIndexOfPosition(Vector2 lookupPosition, Vector2 nodePosition)
@@ -136,6 +160,11 @@ public class QuadTree<T>
     public QuadTreeNode<T> GetRoot()
     {
         return node;
+    }
+
+    public IEnumerable<QuadTreeNode<T>> GetLeafNodes()
+    {
+        return node.GetLeafNodes();
     }
 }
 
