@@ -111,6 +111,7 @@ public class QuadMeshCreator : MonoBehaviour
 
         meshFilter.mesh = mesh;
 
+        chunk.AddComponent<MeshCollider>();
         return chunk;
         //foreach(var leaf in quadTree.QuadTree.GetLeafNodes())
         //{

@@ -370,7 +370,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   image: {fileID: 2800000, guid: 27191d1ae23d90942be198737770726f, type: 3}
   quadTree: {fileID: 561068649}
-  threshold: 1
+  threshold: 0.5
 --- !u!114 &561068652
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -406,7 +406,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 561068648}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a59c0cedb76d06a4e9598e162e49c92c, type: 3}
   m_Name: 
