@@ -7,6 +7,8 @@ public class QuadTreeComponent : MonoBehaviour
     public float size = 5;
     public int depth = 2;
 
+    
+
     private QuadTree<bool> quadTree;
 
     public QuadTree<bool> QuadTree { get { return quadTree; } }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
+using System.Linq;
 
 public class QuadMeshCreator : MonoBehaviour
 {
@@ -11,27 +12,41 @@ public class QuadMeshCreator : MonoBehaviour
 
     public Material voxelMaterial;
 
+    private GameObject previousMesh;
+    private bool initialized = false;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(quadTree.QuadTree != null)
+        {
+            initialized = true;
+            quadTree.QuadTree.QuadTreeUpdated += (obj, args) => { generate = true; };
+        }
         if(generate)
         {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            GenerateMesh();
+            var generatedMesh = GenerateMesh();
             stopwatch.Stop();
+
+            if(previousMesh != null)
+            {
+                Destroy(previousMesh);
+            }
+            previousMesh = generatedMesh;
             UnityEngine.Debug.Log(stopwatch.ElapsedMilliseconds);
             generate = false;
         }
     }
 
-    private void GenerateMesh()
+    private GameObject GenerateMesh()
     {
         GameObject chunk = new GameObject();
         chunk.name = "Voxel Chunk";
@@ -46,7 +61,7 @@ public class QuadMeshCreator : MonoBehaviour
         var uvs = new List<Vector2>();
         var normals = new List<Vector3>();
 
-        foreach(var leaf in quadTree.QuadTree.GetLeafNodes())
+        foreach(var leaf in quadTree.QuadTree.GetLeafNodes().Where((node) => node.Data))
         {
 
             // Vertice insert
@@ -96,7 +111,7 @@ public class QuadMeshCreator : MonoBehaviour
 
         meshFilter.mesh = mesh;
 
-
+        return chunk;
         //foreach(var leaf in quadTree.QuadTree.GetLeafNodes())
         //{
         //    if(leaf.Data)

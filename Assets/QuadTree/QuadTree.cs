@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,13 +12,13 @@ public enum QuadTreeIndex
 }
 
 
-public class QuadTree<T> 
+public class QuadTree<T> where T : IComparable
 {
     private QuadTreeNode<T> node;
     private int depth; // How small should the QuadTree Go?
 
-   
-    
+    public event EventHandler QuadTreeUpdated;
+
 
     public QuadTree(Vector2 position, float size, int depth)
     {
@@ -27,17 +28,35 @@ public class QuadTree<T>
 
     }
 
-
     public void Insert(Vector2 position, T data)
     {
         var leafNode = node.Subdivide(position, data, depth - 1); // Better performance but might not work properly:/ 
         // var leafNode = node.Subdivide(position, data, depth);  
 
         leafNode.Data = data;
+        NotifyQuadTreeUpdate();
+    }
+
+    public void InsertCircle(Vector2 position, float radius, T data)
+    {
+        var leafNodes = new LinkedList<QuadTreeNode<T>>();
+        node.CircleSubdivide(leafNodes, position, radius, data, depth - 1); // Better performance but might not work properly:/ 
+        // var leafNode = node.Subdivide(position, data, depth);  
+        
+        
+        NotifyQuadTreeUpdate();
+    }
+
+    private void NotifyQuadTreeUpdate()
+    {
+        if(QuadTreeUpdated != null)
+        {
+            QuadTreeUpdated(this, new EventArgs());
+        }
     }
 
 
-    public class QuadTreeNode<T>
+    public class QuadTreeNode<T> where T : IComparable
     {
         Vector2 position;
         float size;
@@ -74,7 +93,7 @@ public class QuadTree<T>
             this.depth = depth;
         }
 
-        public QuadTreeNode<T> Subdivide(Vector2 targetPosition, T type, int depth = 0)
+        public QuadTreeNode<T?> Subdivide(Vector2 targetPosition, T data, int depth = 0)
         {
             if(depth == 0)
             {
@@ -125,9 +144,94 @@ public class QuadTree<T>
             
         }
 
+        public void CircleSubdivide(LinkedList<QuadTreeNode<T>> selectedNodes, Vector2 targetPosition, float radius, T data, int depth = 0)
+        {
+            if (depth == 0)
+            {
+                this.Data = data;
+                selectedNodes.AddLast(this);
+                return;
+            }
+
+            if(depth > 8)
+            {
+                return;
+            }
+            
+            var subDivIndex = GetIndexOfPosition(targetPosition, position);
+            if (subNodes == null)
+            {
+                subNodes = new QuadTreeNode<T>[4];
+
+                for (int i = 0; i < subNodes.Length; ++i)
+                {
+                    Vector2 newPos = position;
+                    if ((i & 2) == 2)
+                    {
+                        newPos.y -= size * 0.25f;
+                    }
+                    else
+                    {
+                        newPos.y += size * 0.25f;
+                    }
+
+                    if ((i & 1) == 1)
+                    {
+                        newPos.x += size * 0.25f;
+                    }
+                    else
+                    {
+                        newPos.x -= size * 0.25f;
+                    }
+
+                    subNodes[i] = new QuadTreeNode<T>(newPos, size * 0.5f, depth - 1, Data);
+                    
+                    
+
+                    //if (depth > 0 && subDivIndex == i)
+                    //{
+                    //    subNodes[i].Subdivide(targetPosition, data, depth - 1);
+
+                    //}
+                }
+            }
+
+            for (int i = 0; i < subNodes.Length; ++i)
+            {
+                if (subNodes[i].ContainedInCircle(targetPosition, radius))
+                {
+                    subNodes[i].CircleSubdivide(selectedNodes, targetPosition, radius, data, depth - 1);
+                }
+            }
+
+            var shouldReduce = true;
+            var initialValue = subNodes[0].Data;
+            for(int i = 0; i < subNodes.Length; ++i)
+            {
+                shouldReduce &= ((initialValue.CompareTo(subNodes[i].Data) == 0));
+                shouldReduce &= (subNodes[i].IsLeaf());
+                
+            }
+
+            if(shouldReduce)
+            {
+                this.Data = initialValue;
+                subNodes = null;
+            }
+        }
+
+        public bool ContainedInCircle(Vector2 position, float radius)
+        {
+            Vector2 difference = this.Position - position;
+            difference.x = Mathf.Max(0, Mathf.Abs(difference.x) - Size / 2);
+            difference.y = Mathf.Max(0, Mathf.Abs(difference.y) - Size / 2);
+
+            return difference.magnitude < radius;
+        }
+
         public bool IsLeaf()
         {
-            return depth == 0;
+            return Nodes == null;
         }
 
         public IEnumerable<QuadTreeNode<T>> GetLeafNodes()
