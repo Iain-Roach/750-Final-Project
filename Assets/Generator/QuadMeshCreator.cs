@@ -7,6 +7,14 @@ using System.Linq;
 
 public class QuadMeshCreator : MonoBehaviour
 {
+    private readonly Color[] voxelColorCodes = new Color[]
+    {
+        Color.clear,
+        Color.red,
+        Color.green,
+        Color.blue
+    };
+
     public bool generate = false;
     public QuadTreeComponent quadTree;
 
@@ -60,8 +68,9 @@ public class QuadMeshCreator : MonoBehaviour
         var triangles = new List<int>();
         var uvs = new List<Vector2>();
         var normals = new List<Vector3>();
+        var colors = new List<Color>();
 
-        foreach(var leaf in quadTree.QuadTree.GetLeafNodes().Where((node) => node.Data))
+        foreach(var leaf in quadTree.QuadTree.GetLeafNodes().Where((node) => node.Data != 0))
         {
 
             // Vertice insert
@@ -97,13 +106,17 @@ public class QuadMeshCreator : MonoBehaviour
             triangles.Add(initialIndex + 1);
 
 
-
+            colors.Add(voxelColorCodes[leaf.Data]);
+            colors.Add(voxelColorCodes[leaf.Data]);
+            colors.Add(voxelColorCodes[leaf.Data]);
+            colors.Add(voxelColorCodes[leaf.Data]);
         }
 
         mesh.SetVertices(vertices);
         mesh.SetTriangles(triangles, 0);
         mesh.SetUVs(0, uvs);
         mesh.SetNormals(normals);
+        mesh.SetColors(colors);
 
         var meshFilter = chunk.AddComponent<MeshFilter>();  // Change to sprite renderer? for performance maybe
         var meshRenderer = chunk.AddComponent<MeshRenderer>();

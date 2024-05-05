@@ -6,6 +6,7 @@ public class QuadTreeSphereInserter : MonoBehaviour
 {
     public QuadTreeComponent quadTree;
     public float radius = 0.5f;
+    public int value = 1;
 
 
     // Start is called before the first frame update
@@ -22,13 +23,13 @@ public class QuadTreeSphereInserter : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             Debug.Log("Deleting: " + insertionPoint.origin);
-            quadTree.QuadTree.InsertCircle(insertionPoint.origin, radius,false);
+            quadTree.QuadTree.InsertCircle(insertionPoint.origin, radius, 0);
 
         }
         else if (Input.GetMouseButtonDown(1))
         {
             Debug.Log("Inserting: " + insertionPoint.origin);
-            quadTree.QuadTree.InsertCircle(insertionPoint.origin, radius, true);
+            quadTree.QuadTree.InsertCircle(insertionPoint.origin, radius, value);
         }
     }
 }

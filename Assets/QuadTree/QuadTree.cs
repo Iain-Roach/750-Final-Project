@@ -93,7 +93,7 @@ public class QuadTree<T> where T : IComparable
             this.depth = depth;
         }
 
-        public QuadTreeNode<T?> Subdivide(Vector2 targetPosition, T data, int depth = 0)
+        public QuadTreeNode<T> Subdivide(Vector2 targetPosition, T data, int depth = 0)
         {
             if(depth == 0)
             {

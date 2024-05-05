@@ -30,9 +30,30 @@ public class ImageToVoxelGenerator : MonoBehaviour
                 var pixel = image.GetPixelBilinear(x / (float)cells, y / (float)cells);
                 if(pixel.r > threshold)
                 {
-                    quadTree.QuadTree.Insert(position, true);
+                    quadTree.QuadTree.InsertCircle(position, 0.0001f,  1);
                 }
             }
         }
+    }
+
+    private void GenerateOld()
+    {
+        //int cells = (int)Mathf.Pow(2, quadTree.depth);
+        //for (int x = 0; x < cells; ++x)
+        //{
+        //    for (int y = 0; y < cells; ++y)
+        //    {
+        //        Vector2 position = quadTree.transform.position;
+        //        position.x += ((x - cells / 2) / (float)cells) * quadTree.size;
+        //        position.y += ((y - cells / 2) / (float)cells) * quadTree.size;
+        //        // quadTree.QuadTree.Insert(position, true);
+
+        //        var pixel = image.GetPixelBilinear(x / (float)cells, y / (float)cells);
+        //        if (pixel.r > threshold)
+        //        {
+        //            quadTree.QuadTree.Insert(position, true);
+        //        }
+        //    }
+        //}
     }
 }

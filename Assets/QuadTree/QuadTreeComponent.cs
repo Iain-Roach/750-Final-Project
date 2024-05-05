@@ -9,14 +9,14 @@ public class QuadTreeComponent : MonoBehaviour
 
     
 
-    private QuadTree<bool> quadTree;
+    private QuadTree<int> quadTree;
 
-    public QuadTree<bool> QuadTree { get { return quadTree; } }
+    public QuadTree<int> QuadTree { get { return quadTree; } }
 
     // Start is called before the first frame update
     void Awake()
     {
-       quadTree = new QuadTree<bool>(this.transform.position, size, depth);
+       quadTree = new QuadTree<int>(this.transform.position, size, depth);
     }
 
     // Update is called once per frame
@@ -37,7 +37,7 @@ public class QuadTreeComponent : MonoBehaviour
     private Color minColor = new Color(1, 1, 1, 1);
     private Color maxColor = new Color(0, 0.5f, 1, 0.25f);
 
-    private void DrawNode(QuadTree<bool>.QuadTreeNode<bool> node, int nodeDepth = 0)
+    private void DrawNode(QuadTree<int>.QuadTreeNode<int> node, int nodeDepth = 0)
     {
         //if(node.IsLeaf())
         //{

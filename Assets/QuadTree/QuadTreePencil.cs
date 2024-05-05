@@ -6,6 +6,7 @@ public class QuadTreePencil : MonoBehaviour
 {
 
     public QuadTreeComponent quadTree;
+    public int value = 1;
 
     // Start is called before the first frame update
     void Start()
@@ -21,13 +22,13 @@ public class QuadTreePencil : MonoBehaviour
         if(Input.GetMouseButton(0))
         {
             Debug.Log("Deleting: " + insertionPoint.origin);
-            quadTree.QuadTree.Insert(insertionPoint.origin, false);
+            quadTree.QuadTree.Insert(insertionPoint.origin, 0);
 
         }
         else if(Input.GetMouseButton(1))
         {
             Debug.Log("Inserting: " + insertionPoint.origin);
-            quadTree.QuadTree.Insert(insertionPoint.origin, true);
+            quadTree.QuadTree.Insert(insertionPoint.origin, value);
         }
     }
 }
