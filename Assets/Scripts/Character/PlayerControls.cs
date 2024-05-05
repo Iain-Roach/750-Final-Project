@@ -28,7 +28,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             ""id"": ""4e6acacd-c98a-4e08-9da1-ce7438dbc999"",
             ""actions"": [
                 {
-                    ""name"": ""Grow"",
+                    ""name"": ""Jump"",
                     ""type"": ""Button"",
                     ""id"": ""a6ef140e-23e0-4097-883f-5a3127ca78a4"",
                     ""expectedControlType"": ""Button"",
@@ -63,7 +63,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Grow"",
+                    ""action"": ""Jump"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -96,7 +96,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
 }");
         // Gameplay
         m_Gameplay = asset.FindActionMap("Gameplay", throwIfNotFound: true);
-        m_Gameplay_Grow = m_Gameplay.FindAction("Grow", throwIfNotFound: true);
+        m_Gameplay_Jump = m_Gameplay.FindAction("Jump", throwIfNotFound: true);
         m_Gameplay_Move = m_Gameplay.FindAction("Move", throwIfNotFound: true);
         m_Gameplay_Rotate = m_Gameplay.FindAction("Rotate", throwIfNotFound: true);
     }
@@ -160,14 +160,14 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     // Gameplay
     private readonly InputActionMap m_Gameplay;
     private List<IGameplayActions> m_GameplayActionsCallbackInterfaces = new List<IGameplayActions>();
-    private readonly InputAction m_Gameplay_Grow;
+    private readonly InputAction m_Gameplay_Jump;
     private readonly InputAction m_Gameplay_Move;
     private readonly InputAction m_Gameplay_Rotate;
     public struct GameplayActions
     {
         private @PlayerControls m_Wrapper;
         public GameplayActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
-        public InputAction @Grow => m_Wrapper.m_Gameplay_Grow;
+        public InputAction @Jump => m_Wrapper.m_Gameplay_Jump;
         public InputAction @Move => m_Wrapper.m_Gameplay_Move;
         public InputAction @Rotate => m_Wrapper.m_Gameplay_Rotate;
         public InputActionMap Get() { return m_Wrapper.m_Gameplay; }
@@ -179,9 +179,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         {
             if (instance == null || m_Wrapper.m_GameplayActionsCallbackInterfaces.Contains(instance)) return;
             m_Wrapper.m_GameplayActionsCallbackInterfaces.Add(instance);
-            @Grow.started += instance.OnGrow;
-            @Grow.performed += instance.OnGrow;
-            @Grow.canceled += instance.OnGrow;
+            @Jump.started += instance.OnJump;
+            @Jump.performed += instance.OnJump;
+            @Jump.canceled += instance.OnJump;
             @Move.started += instance.OnMove;
             @Move.performed += instance.OnMove;
             @Move.canceled += instance.OnMove;
@@ -192,9 +192,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
 
         private void UnregisterCallbacks(IGameplayActions instance)
         {
-            @Grow.started -= instance.OnGrow;
-            @Grow.performed -= instance.OnGrow;
-            @Grow.canceled -= instance.OnGrow;
+            @Jump.started -= instance.OnJump;
+            @Jump.performed -= instance.OnJump;
+            @Jump.canceled -= instance.OnJump;
             @Move.started -= instance.OnMove;
             @Move.performed -= instance.OnMove;
             @Move.canceled -= instance.OnMove;
@@ -220,7 +220,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     public GameplayActions @Gameplay => new GameplayActions(this);
     public interface IGameplayActions
     {
-        void OnGrow(InputAction.CallbackContext context);
+        void OnJump(InputAction.CallbackContext context);
         void OnMove(InputAction.CallbackContext context);
         void OnRotate(InputAction.CallbackContext context);
     }

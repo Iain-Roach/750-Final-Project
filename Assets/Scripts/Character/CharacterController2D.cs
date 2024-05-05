@@ -34,9 +34,11 @@ public class CharacterController2D : MonoBehaviour, IPlayerController
     private Vector2 _frameVelocity;
     private bool _chachedQueryStartInColliders;
 
+
     public Vector2 FrameInput => _frameInput.Move;
     public event Action<bool, float> GroundedChanged;
     public event Action Jumped;
+    
 
 
     private float _time;
@@ -83,7 +85,7 @@ public class CharacterController2D : MonoBehaviour, IPlayerController
     public float AirDeceleration = 30;
 
     [Tooltip("A constant downward force applied while grounded. Helps on slopes"), Range(0f, -10f)]
-    public float GroundingForce = -1.5f;
+    public float GroundingForce = -1.5f / 5;
 
     [Tooltip("The detection distance for grounding and roof detection"), Range(0f, 0.5f)]
     public float GrounderDistance = 0.05f;
@@ -93,10 +95,10 @@ public class CharacterController2D : MonoBehaviour, IPlayerController
     public float JumpPower = 36;
 
     [Tooltip("The maximum vertical movement speed")]
-    public float MaxFallSpeed = 40;
+    public float MaxFallSpeed = 10;
 
     [Tooltip("The player's capacity to gain fall speed. a.k.a. In Air Gravity")]
-    public float FallAcceleration = 110;
+    public float FallAcceleration = 110/4;
 
     [Tooltip("The gravity multiplier added when jump is released early")]
     public float JumpEndEarlyGravityModifier = 3;
@@ -107,11 +109,18 @@ public class CharacterController2D : MonoBehaviour, IPlayerController
     [Tooltip("The amount of time we buffer a jump. This allows jump input before actually hitting the ground")]
     public float JumpBuffer = .2f;
 
-
+    Vector2 move;
+    PlayerControls controls;
     private void Awake()
     {
+        controls = new PlayerControls();
+        controls.Gameplay.Move.performed += ctx => move = ctx.ReadValue<Vector2>();
+        controls.Gameplay.Move.canceled += ctx => move = Vector2.zero;
+        controls.Gameplay.Jump.performed += ctx => ControllerJumpHeld();
+        
         _rb = GetComponent<Rigidbody>();
         _col = GetComponent<BoxCollider>();
+        
 
         // _chachedQueryStartInColliders = Physics2D.queriesStartInColliders;
         
@@ -119,6 +128,7 @@ public class CharacterController2D : MonoBehaviour, IPlayerController
 
     public void Start()
     {
+        //controls = new PlayerControls();
         _jumpToConsume = false;
         _bufferedJumpUsable = false;
         _grounded = false;
@@ -131,10 +141,11 @@ public class CharacterController2D : MonoBehaviour, IPlayerController
         GatherInput();
     }
 
+    
     private void GatherInput()
     {
         Gamepad gamepad = Gamepad.current;
-        _frameInput = new FrameInput();
+        
         if(gamepad == null)
         {
             Debug.Log("No Gamepad");
@@ -154,11 +165,19 @@ public class CharacterController2D : MonoBehaviour, IPlayerController
 
                 //JumpDown = Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.Space),
                 JumpDown = Input.GetKeyDown(KeyCode.W),
-                JumpHeld = Input.GetButton("Jump") || Input.GetKey(KeyCode.W),
+                JumpHeld = controls.Gameplay.Jump.IsPressed(),
                 Move = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"))
             };
         }
+
+        Vector2 dPad = move;
+        if(dPad != Vector2.zero)
+        Debug.Log("Dpad Input:" + dPad);
         
+        if(controls.Gameplay.Jump.triggered)
+        {
+            Debug.Log("Jump");
+        }
 
         if (SnapInput)
         {
@@ -186,6 +205,11 @@ public class CharacterController2D : MonoBehaviour, IPlayerController
         //    pauseMenu.SetActive(!pauseMenu.activeSelf);
 
         //}
+    }
+
+    private void ControllerJumpHeld()
+    {
+        Debug.Log("SHOULD JUMP");
     }
 
     private void FixedUpdate()
