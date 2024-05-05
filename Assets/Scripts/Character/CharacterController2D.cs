@@ -116,7 +116,6 @@ public class CharacterController2D : MonoBehaviour, IPlayerController
         controls = new PlayerControls();
         controls.Gameplay.Move.performed += ctx => move = ctx.ReadValue<Vector2>();
         controls.Gameplay.Move.canceled += ctx => move = Vector2.zero;
-        controls.Gameplay.Jump.performed += ctx => ControllerJumpHeld();
         
         _rb = GetComponent<Rigidbody>();
         _col = GetComponent<BoxCollider>();
@@ -164,7 +163,7 @@ public class CharacterController2D : MonoBehaviour, IPlayerController
             {
 
                 //JumpDown = Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.Space),
-                JumpDown = Input.GetKeyDown(KeyCode.W),
+                JumpDown = controls.Gameplay.Jump.triggered,
                 JumpHeld = controls.Gameplay.Jump.IsPressed(),
                 Move = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"))
             };
@@ -176,7 +175,11 @@ public class CharacterController2D : MonoBehaviour, IPlayerController
         
         if(controls.Gameplay.Jump.triggered)
         {
-            Debug.Log("Jump");
+            Debug.Log("JUMP");
+        }
+        if(controls.Gameplay.Jump.IsPressed())
+        {
+            Debug.Log("Held Jump");
         }
 
         if (SnapInput)
@@ -207,7 +210,7 @@ public class CharacterController2D : MonoBehaviour, IPlayerController
         //}
     }
 
-    private void ControllerJumpHeld()
+    void ControllerJumpHeld()
     {
         Debug.Log("SHOULD JUMP");
     }
@@ -232,13 +235,9 @@ public class CharacterController2D : MonoBehaviour, IPlayerController
         //bool ceilingHit = Physics2D.CapsuleCast(_col.bounds.center, _col.size, _col.direction, 0, Vector2.up, GrounderDistance, ~PlayerLayer);
 
         bool groundHit = Physics.BoxCast(_col.bounds.center + Vector3.up, _col.bounds.extents, Vector3.down, Quaternion.identity, 1 + magicDistNum, ~PlayerLayer);
-        if (groundHit)
-        {
-            Debug.Log("Ground Hit");
-            Debug.Log(_col.bounds.center);
-        }
+        
 
-
+        // Need to fix this still
         bool ceilingHit = Physics.BoxCast(_col.center, _col.bounds.extents, Vector3.up, this.transform.rotation, GrounderDistance, ~PlayerLayer);
         
         if (ceilingHit) _frameVelocity.y = Mathf.Min(0, _frameVelocity.y);
@@ -321,6 +320,16 @@ public class CharacterController2D : MonoBehaviour, IPlayerController
     }
 
     private void ApplyMovement() => _rb.velocity = _frameVelocity;
+
+    private void OnEnable()
+    {
+        controls.Gameplay.Enable();
+    }
+
+    private void OnDisable()
+    {
+        controls.Gameplay.Disable();
+    }
 
 #if UNITY_EDITOR
     private void OnValidate()
