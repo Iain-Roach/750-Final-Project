@@ -16,6 +16,8 @@ public struct FrameInput
     public bool JumpDown;
     public bool JumpHeld;
     public Vector2 Move;
+    public Vector2 Rotate;
+    public bool Shoot;
 }
 
 [RequireComponent(typeof(Rigidbody), typeof(BoxCollider))]
@@ -23,6 +25,10 @@ public class CharacterController2D : MonoBehaviour, IPlayerController
 {
 
     [SerializeField] GameObject pauseMenu;
+    GameObject gun;
+    Vector2 lastGunAngle;
+
+
     //[SerializeField] public CharacterStats _stats;
     //private Rigidbody2D _rb;
     private Rigidbody _rb;
@@ -111,14 +117,20 @@ public class CharacterController2D : MonoBehaviour, IPlayerController
 
     Vector2 move;
     PlayerControls controls;
+
+
+
+
     private void Awake()
     {
         controls = new PlayerControls();
         controls.Gameplay.Move.performed += ctx => move = ctx.ReadValue<Vector2>();
         controls.Gameplay.Move.canceled += ctx => move = Vector2.zero;
+        controls.Gameplay.Shoot.performed += ctx => ShootGun();
         
         _rb = GetComponent<Rigidbody>();
         _col = GetComponent<BoxCollider>();
+        gun = gameObject.transform.GetChild(0).gameObject;
         
 
         // _chachedQueryStartInColliders = Physics2D.queriesStartInColliders;
@@ -165,22 +177,19 @@ public class CharacterController2D : MonoBehaviour, IPlayerController
                 //JumpDown = Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.Space),
                 JumpDown = controls.Gameplay.Jump.triggered,
                 JumpHeld = controls.Gameplay.Jump.IsPressed(),
-                Move = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"))
+                Move = controls.Gameplay.Move.ReadValue<Vector2>(),
+                Rotate = controls.Gameplay.Rotate.ReadValue<Vector2>(),
+                Shoot = controls.Gameplay.Shoot.triggered
             };
         }
 
-        Vector2 dPad = move;
-        if(dPad != Vector2.zero)
-        Debug.Log("Dpad Input:" + dPad);
         
-        if(controls.Gameplay.Jump.triggered)
+
+        if (lastGunAngle != Vector2.zero && _frameInput.Rotate == Vector2.zero)
         {
-            Debug.Log("JUMP");
+            _frameInput.Rotate = lastGunAngle;
         }
-        if(controls.Gameplay.Jump.IsPressed())
-        {
-            Debug.Log("Held Jump");
-        }
+        lastGunAngle = _frameInput.Rotate;
 
         if (SnapInput)
         {
@@ -210,15 +219,40 @@ public class CharacterController2D : MonoBehaviour, IPlayerController
         //}
     }
 
-    void ControllerJumpHeld()
+    void RotateGun()
     {
-        Debug.Log("SHOULD JUMP");
+        Gamepad gamepad = Gamepad.current;
+        float rotationSpeed = 5.0f;
+        float orbitRadius = 1.0f;
+        if(gamepad != null)
+        {
+            Vector2 direction = new Vector2(_frameInput.Rotate.x, _frameInput.Rotate.y);
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            float radians = angle * Mathf.Deg2Rad;
+
+            Vector3 orbitPosition = new Vector3(Mathf.Cos(radians) * orbitRadius, Mathf.Sin(radians) * orbitRadius, 0);
+
+            gun.transform.localPosition = orbitPosition;
+
+            gun.transform.localRotation = Quaternion.Euler(0, 0, angle - 90);
+            //gun.transform.rotation = Quaternion.Slerp(gun.transform.rotation, Quaternion.AngleAxis(angle, Vector3.forward), rotationSpeed * Time.deltaTime);
+        }
+        
+    }
+
+    void ShootGun()
+    {
+        
+            Debug.Log("Destruction Gun Fire");
+  
     }
 
     private void FixedUpdate()
     {
         CheckCollisions();
 
+        
+        RotateGun();
         HandleJump();
         HandleDirection();
         HandleGravity();
@@ -235,10 +269,20 @@ public class CharacterController2D : MonoBehaviour, IPlayerController
         //bool ceilingHit = Physics2D.CapsuleCast(_col.bounds.center, _col.size, _col.direction, 0, Vector2.up, GrounderDistance, ~PlayerLayer);
 
         bool groundHit = Physics.BoxCast(_col.bounds.center + Vector3.up, _col.bounds.extents, Vector3.down, Quaternion.identity, 1 + magicDistNum, ~PlayerLayer);
-        
+        RaycastHit hit;
+        bool groundCheck = Physics.BoxCast(_col.bounds.center + Vector3.up, _col.bounds.extents, Vector3.down, out hit,Quaternion.identity, 1 + magicDistNum, ~PlayerLayer);
+
+
+        if (groundCheck)
+        {
+            if(hit.transform.tag == "Ground")
+            {
+                Debug.Log("Hit Ground");
+            }
+        }
 
         // Need to fix this still
-        bool ceilingHit = Physics.BoxCast(_col.center, _col.bounds.extents, Vector3.up, this.transform.rotation, GrounderDistance, ~PlayerLayer);
+        bool ceilingHit = Physics.BoxCast(_col.bounds.center, _col.bounds.extents, Vector3.up, Quaternion.identity, 1 + magicDistNum, ~PlayerLayer);
         
         if (ceilingHit) _frameVelocity.y = Mathf.Min(0, _frameVelocity.y);
 
@@ -262,14 +306,17 @@ public class CharacterController2D : MonoBehaviour, IPlayerController
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(transform.position + Vector3.down * (transform.localScale.y / 2f), transform.localScale);
-        Gizmos.DrawRay(transform.position + Vector3.down * (transform.localScale.y / 2f), Vector3.down / 2);
+        //Gizmos.color = Color.red;
+        //Gizmos.DrawWireCube(transform.position + Vector3.down * (transform.localScale.y / 2f), transform.localScale);
+        //Gizmos.DrawRay(transform.position + Vector3.down * (transform.localScale.y / 2f), Vector3.down / 2);
         
     }
 
     private void HandleJump()
     {
+        Debug.Log("Grounded? " + _grounded);
+        Debug.Log("Jump To Consume? " + _jumpToConsume);
+
         if (!_endedJumpEarly && !_grounded && !_frameInput.JumpHeld && _rb.velocity.y > 0) _endedJumpEarly = true;
 
         if (!_jumpToConsume && !HasBufferedJump) return;
