@@ -19,6 +19,10 @@ public class SpaceShipController : MonoBehaviour
     GameObject gun;
     Vector2 lastGunAngle;
 
+
+    [SerializeField]
+    GameObject debugMenu;
+
     public Vector3 MoveInput
     {
         get { return controls.SpaceShip.Move.ReadValue<Vector2>(); }
@@ -91,6 +95,20 @@ public class SpaceShipController : MonoBehaviour
         //{
         //    Debug.Log(hit.transform.gameObject);
         //}
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (debugMenu.activeSelf)
+            {
+                debugMenu.GetComponent<UIManager>().UnPauseGame();
+            }
+            else
+            {
+                debugMenu.GetComponent<UIManager>().PauseGame();
+            }
+            debugMenu.SetActive(!debugMenu.activeSelf);
+
+        }
 
     }
 

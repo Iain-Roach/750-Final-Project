@@ -99,10 +99,10 @@ public class QuadTree<T> where T : IComparable
             {
                 return this;
             }
-            if(depth > 8)
-            {
-                return null;
-            }
+            //if(depth > 8)
+            //{
+            //    return null;
+            //}
             var subDivIndex = GetIndexOfPosition(targetPosition, position);
             if (subNodes == null)
             {

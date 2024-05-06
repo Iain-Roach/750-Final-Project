@@ -23,6 +23,8 @@ public class QuadMeshCreator : MonoBehaviour
     private GameObject previousMesh;
     private bool initialized = false;
 
+    public float genTime =0.0f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -50,6 +52,7 @@ public class QuadMeshCreator : MonoBehaviour
             }
             previousMesh = generatedMesh;
             UnityEngine.Debug.Log(stopwatch.ElapsedMilliseconds);
+            genTime = stopwatch.ElapsedMilliseconds;
             generate = false;
         }
     }
@@ -111,6 +114,8 @@ public class QuadMeshCreator : MonoBehaviour
             colors.Add(voxelColorCodes[leaf.Data]);
             colors.Add(voxelColorCodes[leaf.Data]);
         }
+
+        // UnityEngine.Debug.Log("Vertice Count: " + vertices.Count);
 
         mesh.SetVertices(vertices);
         mesh.SetTriangles(triangles, 0);
