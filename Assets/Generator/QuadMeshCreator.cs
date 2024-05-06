@@ -10,7 +10,7 @@ public class QuadMeshCreator : MonoBehaviour
     private readonly Color[] voxelColorCodes = new Color[]
     {
         Color.clear,
-        Color.red,
+        new Color(121.0f/255.0f, 0, 31.0f/255.0f),
         Color.green,
         Color.blue
     };
