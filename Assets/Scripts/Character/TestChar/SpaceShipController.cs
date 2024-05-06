@@ -100,11 +100,11 @@ public class SpaceShipController : MonoBehaviour
         {
             if (debugMenu.activeSelf)
             {
-                debugMenu.GetComponent<UIManager>().UnPauseGame();
+                //debugMenu.GetComponent<UIManager>().UnPauseGame();
             }
             else
             {
-                debugMenu.GetComponent<UIManager>().PauseGame();
+                //debugMenu.GetComponent<UIManager>().PauseGame();
             }
             debugMenu.SetActive(!debugMenu.activeSelf);
 

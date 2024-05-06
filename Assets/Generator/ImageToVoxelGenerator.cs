@@ -15,7 +15,7 @@ public class ImageToVoxelGenerator : MonoBehaviour
         Generate();
     }
 
-    private void Generate()
+    public void Generate()
     {
         int cells = (int)Mathf.Pow(2, quadTree.depth);
         for(int x = 0; x < cells; ++x)
@@ -31,6 +31,10 @@ public class ImageToVoxelGenerator : MonoBehaviour
                 if(pixel.r > threshold)
                 {
                     quadTree.QuadTree.InsertCircle(position, 0.0001f,  1);
+                }
+                else
+                {
+                    quadTree.QuadTree.InsertCircle(position, 0.0001f, 0);
                 }
             }
         }
