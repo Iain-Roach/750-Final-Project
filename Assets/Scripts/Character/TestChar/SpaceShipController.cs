@@ -19,6 +19,26 @@ public class SpaceShipController : MonoBehaviour
     GameObject gun;
     Vector2 lastGunAngle;
 
+    public Vector3 MoveInput
+    {
+        get { return controls.SpaceShip.Move.ReadValue<Vector2>(); }
+    }
+    // public Vector3 moveInput => controls.SpaceShip.Move.ReadValue<Vector2>();
+
+    public Vector2 RotateInput
+    {
+        get { return controls.SpaceShip.Rotate.ReadValue<Vector2>(); }
+    }
+    public bool GetShoot
+    {
+        get { return controls.SpaceShip.Shoot.triggered; }
+    }
+
+    public bool GetBuild
+    {
+        get { return controls.SpaceShip.Build.triggered; }
+    }
+
     void Awake()
     {
         controls = new PlayerControls();
